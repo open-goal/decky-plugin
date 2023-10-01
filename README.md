@@ -6,7 +6,7 @@ TODO
 
 You can only use the `decky` CLI on linux.
 
-Run `./.vscode/build.sh` to set things up the first time, you'll need nodejs above 16 and pnpm.
+Run `./.vscode/setup.sh` to set things up the first time, you'll need `nodejs` 16+ and `pnpm`.
 
 Run `./.vscode/build.sh` to build the zip file in `out/`
 
