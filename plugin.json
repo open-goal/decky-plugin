@@ -1,9 +1,9 @@
 {
   "name": "OpenGOAL",
   "author": "The OpenGOAL Team",
-  "flags": ["debug"],
+  "flags": [],
   "publish": {
-    "tags": ["template"],
+    "tags": [],
     "description": "A plugin that makes it easier to setup and update OpenGOAL",
     "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
   }
