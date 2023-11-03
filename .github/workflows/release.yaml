@@ -38,7 +38,7 @@ jobs:
       - name: Bump Version
         id: version_bump
         run: |
-          npm version ${{ github.event.inputs.bump }}
+          npm version ${{ github.event.inputs.bump }} --no-git-tag-version
           NEW_VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2}' package.json)
           echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
 
