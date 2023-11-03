@@ -38,6 +38,16 @@ def shortcut_already_exists(shortcuts, name):
             return True
     return False
 
+
+def version_supports_game_flag(version):
+    parts = version.replace("v", "").split(".")
+    if int(parts[0]) > 0 or int(parts[1]) > 1:
+        return True
+    elif int(parts[1]) == 0 and int(parts[2]) >= 44:
+        return True
+    return False
+
+
 def _install_game_impl(game):
     try:
         decky_plugin.logger.info("installing game: {}".format(game))
@@ -59,12 +69,11 @@ def _install_game_impl(game):
         release_url = "https://api.github.com/repos/{}/{}/releases/latest".format(
             owner, repo
         )
-        release_resp = urllib.request.urlopen(
-            release_url, context=get_ssl_context()
-        )
+        release_resp = urllib.request.urlopen(release_url, context=get_ssl_context())
 
         if release_resp.status == 200:
             release_info = json.loads(release_resp.read().decode("utf-8"))
+            use_game_flag = version_supports_game_flag(release_info["tag_name"])
             decky_plugin.logger.info(
                 "received response from github: {}".format(release_info)
             )
@@ -83,9 +92,7 @@ def _install_game_impl(game):
                 asset_url = asset_to_download["browser_download_url"]
 
                 # Download the asset
-                asset_file = os.path.join(
-                    extract_directory, asset_to_download["name"]
-                )
+                asset_file = os.path.join(extract_directory, asset_to_download["name"])
                 asset_resp = urllib.request.urlopen(
                     asset_url, context=get_ssl_context()
                 )
@@ -112,15 +119,19 @@ def _install_game_impl(game):
                     "isos",
                     "{}.iso".format(game),
                 )
+                args = [
+                    "./extractor",
+                    iso_path,
+                    "--extract",
+                    "--validate",
+                    "--decompile",
+                    "--compile",
+                ]
+                if use_game_flag:
+                    args.append("--game")
+                    args.append(game)
                 completed_process = subprocess.run(
-                    [
-                        "./extractor",
-                        iso_path,
-                        "--extract",
-                        "--validate",
-                        "--decompile",
-                        "--compile",
-                    ],
+                    args,
                     cwd=extract_directory,
                     check=True,
                     stdout=subprocess.PIPE,
@@ -148,9 +159,7 @@ def _install_game_impl(game):
                         os.path.join(extract_directory, "data", "decompiler_out")
                     ):
                         shutil.rmtree(
-                            os.path.join(
-                                extract_directory, "data", "decompiler_out"
-                            )
+                            os.path.join(extract_directory, "data", "decompiler_out")
                         )
                     if os.path.exists(
                         os.path.join(extract_directory, "data", "iso_data")
@@ -177,19 +186,16 @@ def _install_game_impl(game):
         return None
     except Exception as error:
         decky_plugin.logger.error(
-            "[install_game] An exception occurred: {}".format(
-                traceback.format_exc()
-            )
+            "[install_game] An exception occurred: {}".format(traceback.format_exc())
         )
         return None
+
 
 def _remove_game_impl(game):
     try:
         if game == "jak1":
             if os.path.exists(
-                os.path.join(
-                    decky_plugin.DECKY_USER_HOME, "OpenGOAL", "games", "jak1"
-                )
+                os.path.join(decky_plugin.DECKY_USER_HOME, "OpenGOAL", "games", "jak1")
             ):
                 shutil.rmtree(
                     os.path.join(
@@ -198,9 +204,7 @@ def _remove_game_impl(game):
                 )
         elif game == "jak2":
             if os.path.exists(
-                os.path.join(
-                    decky_plugin.DECKY_USER_HOME, "OpenGOAL", "games", "jak2"
-                )
+                os.path.join(decky_plugin.DECKY_USER_HOME, "OpenGOAL", "games", "jak2")
             ):
                 shutil.rmtree(
                     os.path.join(
@@ -215,6 +219,7 @@ def _remove_game_impl(game):
             )
         )
         return False
+
 
 class Plugin:
     async def create_shortcut(self, owner_id, game):
@@ -293,6 +298,7 @@ class Plugin:
                             "jak2",
                             "gk",
                         ),
+                        "LaunchOptions": "--game jak2",
                         "StartDir": os.path.join(
                             decky_plugin.DECKY_USER_HOME, "OpenGOAL", "games", "jak2"
                         ),
