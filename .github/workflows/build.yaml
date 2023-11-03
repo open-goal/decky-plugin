@@ -1,0 +1,41 @@
+name: 🏭 Build Plugin
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-plugin:
+    if: github.repository == 'open-goal/decky-plugin'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "main"
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
+
+      - name: Install Decky CLI
+        run: |
+          mkdir ./cli
+          curl -L -o ./cli/decky "https://github.com/SteamDeckHomebrew/cli/releases/latest/download/decky"
+          chmod +x ./cli/decky
+
+      - name: Create Plugin
+        run: sudo ./cli/decky plugin build ./

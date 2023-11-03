@@ -1,0 +1,104 @@
+name: 🏭 Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Semver Bump Type"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - "patch"
+          - "minor"
+          - "major"
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    if: github.repository == 'open-goal/decky-plugin'
+    name: "Create New Tag"
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.version_bump.outputs.new_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        # TODO - still have to use PAT to bypass branch protections
+        # https://github.com/orgs/community/discussions/13836
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Bump Version
+        id: version_bump
+        run: |
+          npm version ${{ github.event.inputs.bump }}
+          NEW_VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2}' package.json)
+          echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Commit Version Bump
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actor
+          author_name: "OpenGOALBot"
+          author_email: "OpenGOALBot@users.noreply.github.com"
+          message: "release: bump to version - ${{ steps.version_bump.outputs.new_tag }}"
+          tag: "${{ steps.version_bump.outputs.new_tag }}"
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{needs.create-tag.outputs.new_tag}} --generate-notes --draft --repo open-goal/decky-plugin
+
+  build-and-release-plugin:
+    if: github.repository == 'open-goal/decky-plugin'
+    needs: [create-tag]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "main"
+          # TODO - still have to use PAT to bypass branch protections
+          # https://github.com/orgs/community/discussions/13836
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
+
+      - name: Install Decky CLI
+        run: |
+          mkdir ./cli
+          curl -L -o ./cli/decky "https://github.com/SteamDeckHomebrew/cli/releases/latest/download/decky"
+          chmod +x ./cli/decky
+
+      - name: Create Plugin
+        run: |
+          sudo ./cli/decky plugin build ./
+          mv ./out/OpenGOAL.zip ./out/OpenGOAL-${{needs.create-tag.outputs.new_tag}}.zip
+
+      - name: Upload Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{needs.create-tag.outputs.new_tag}} ${{ github.WORKSPACE }}/out/*.zip --repo open-goal/decky-plugin --clobber
+
+      - name: Publish Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          gh release edit ${{needs.create-tag.outputs.new_tag}} --draft=false --repo open-goal/decky-plugin
