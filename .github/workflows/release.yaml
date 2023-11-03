@@ -89,7 +89,8 @@ jobs:
       - name: Create Plugin
         run: |
           sudo ./cli/decky plugin build ./
-          mv ./out/OpenGOAL.zip ./out/OpenGOAL-${{needs.create-tag.outputs.new_tag}}.zip
+          sudo mv ./out/OpenGOAL.zip ./out/OpenGOAL-${{needs.create-tag.outputs.new_tag}}.zip
+          sudo chmod 777 ./out/*.zip
 
       - name: Upload Assets
         env:
