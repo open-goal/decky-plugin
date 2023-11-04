@@ -139,7 +139,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     loadDefaults();
   }, []);
 
-  const showConfirmDeletionModal = () => {
+  const showConfirmDeletionModalJak1 = () => {
     showModal(
       <ConfirmModal
         strTitle={"Delete Jak 1?"}
@@ -150,6 +150,27 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
           const success = (
             await serverAPI.callPluginMethod("remove_game", {
               game: "jak1",
+            })
+          ).result;
+          if (success) {
+            setJak1Installed(false);
+          }
+        }}
+      />
+    );
+  };
+
+  const showConfirmDeletionModalJak2 = () => {
+    showModal(
+      <ConfirmModal
+        strTitle={"Delete Jak 2?"}
+        strCancelButtonText={"Cancel"}
+        strOKButtonText={"Delete"}
+        strDescription={"Are you sure you want to delete Jak 2?"}
+        onOK={async () => {
+          const success = (
+            await serverAPI.callPluginMethod("remove_game", {
+              game: "jak2",
             })
           ).result;
           if (success) {
@@ -275,7 +296,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
                   <DialogButton
                     disabled={jak1Installing}
                     onClick={async () => {
-                      showConfirmDeletionModal();
+                      showConfirmDeletionModalJak1();
                     }}
                     style={{
                       display: "flex",
@@ -354,7 +375,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
                   <DialogButton
                     disabled={jak2Installing}
                     onClick={async () => {
-                      showConfirmDeletionModal();
+                      showConfirmDeletionModalJak2();
                     }}
                     style={{
                       display: "flex",
