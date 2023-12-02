@@ -288,7 +288,7 @@ class Plugin:
                         )
                         % 1_000_000_000
                     ) * -1
-                    d["shortcuts"]["opengoal-jak1"] = {
+                    d["shortcuts"]["opengoal-jak2"] = {
                         "appid": app_id,
                         "AppName": "OpenGOAL - Jak 2",
                         "Exe": os.path.join(
