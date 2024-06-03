@@ -33,7 +33,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Bump Version
         id: version_bump
@@ -72,7 +72,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
@@ -83,7 +83,7 @@ jobs:
       - name: Install Decky CLI
         run: |
           mkdir ./cli
-          curl -L -o ./cli/decky "https://github.com/SteamDeckHomebrew/cli/releases/latest/download/decky"
+          curl -L -o ./cli/decky "https://github.com/SteamDeckHomebrew/cli/releases/latest/download/decky-linux-x86_64"
           chmod +x ./cli/decky
 
       - name: Create Plugin
