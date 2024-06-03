@@ -453,7 +453,7 @@ class Plugin:
 
     async def is_game_installed(self, game):
         try:
-            game_dir = os.path.join("/home/deck/OpenGOAL/games", game)
+            game_dir = os.path.join("{}/OpenGOAL/games".format(decky_plugin.DECKY_USER_HOME), game)
             if os.path.exists(game_dir) and len(os.listdir(game_dir)) > 0:
                 return True
             return False
@@ -508,7 +508,7 @@ class Plugin:
 
     async def does_iso_exist_for_installation(self, game):
         try:
-            iso_path = os.path.join("/home/deck/OpenGOAL/isos", "{}.iso".format(game))
+            iso_path = os.path.join("{}/OpenGOAL/isos".format(decky_plugin.DECKY_USER_HOME), "{}.iso".format(game))
             if os.path.exists(iso_path):
                 return True
             return False
