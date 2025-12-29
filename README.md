@@ -1,6 +1,10 @@
 # OpenGOAL Decky Plugin
 
-TODO
+## This plugin has been deprecated.  We now recommend using the official AppImage launcher on the steamdeck which should function in the same way as it does on desktop environments.
+
+You can download it from the homepage here: https://www.opengoal.dev
+
+And you can find documentation (including steamdeck specific instructions) here: https://opengoal.dev/docs/usage/installation/
 
 ## Development
 
